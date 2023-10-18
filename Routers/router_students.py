@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
-from typing import List
-import uuid
-from Classes.schemas_dto import Student, StudentNoID
+from fastapi import APIRouter, Depends, HTTPException
+from uuid import uuid4
+from classes.models import Student, StudentNoID
+from database.firebase import db
+from routers.router_auth import get_current_user
 
 
 router= APIRouter(
@@ -16,55 +17,58 @@ students = [
 ]
 
 # Verbs + Endpoints
-@router.get('/', response_model=List[Student])
-async def get_student():
-    """ List all the students from a Training Center (context fonctionnel ou technique) """
-    return students
+@router.get("/", response_model=list[Student])
+async def get_student(user_data: int= Depends(get_current_user)):
+    queryResults = db.child('users').child(user_data['uid']).child("students").get(user_data['idToken']).val()
+    if not queryResults : return []
+    studentArray = [value for value in queryResults.values()]
+    return studentArray
 
 # 1. Exercice (10min) Create new Student: POST
+#connecter la vraie DB (10 min)
+#add oauth (10min)
 # response_model permet de définir de type de réponse (ici nous retournons le student avec sont id)
 # status_code est définit sur 201-Created car c'est un POST
-@router.post('/', response_model=Student, status_code=201)
-async def create_student(givenName:StudentNoID):
-    # génération de l'identifiant unique
-    generatedId=uuid.uuid4()
-    # création de l'object/dict Student 
-    newStudent= Student(id=str(generatedId), name=givenName)
-    # Ajout du nouveau Student dans la List/Array
-    students.append(newStudent)
-    # Réponse définit par le Student avec son ID
+
+@router.post("/", status_code=201, response_model=Student)
+async def create_student(student: StudentNoID, user_data: int= Depends(get_current_user)):
+    generatedId=str(uuid4())
+    newStudent = Student (id=generatedId, name=student.name)
+    db.child('users').child(user_data['uid']).child("students").child(generatedId).set(data=newStudent.model_dump(), token=user_data['idToken'])
     return newStudent
 
-# Pause jusqu'à 13h30
 
 # 2. Exercice (10min) Student GET by ID
-# response_model est un Student car nous souhaitons trouvé l'étudiant correspodant à l'ID
-@router.get('/{student_id}', response_model=Student)
-async def get_student_by_ID(student_id:str): # student_id correspond au URI parameter du path: '/students/{student_id}'
-    #On parcours chaque étudiant de la liste
-    for student in students:
-        # Si l'ID correspond, on retourne l'étudiant trouvé
-        if student.id == student_id:
-            return student
-        # pas de "else" car si on ne l'a pas trouvé, on continue avec le prochain student
-    # Si on arrive ici, c'est que la boucle sur la liste "students" n'a rien trouvé
-    # On lève donc un HTTP Exception
-    raise HTTPException(status_code= 404, detail="Student not found")
+#connecter la vraie DB (10 min)
+#add oauth (10min)
+@router.get("/{student_id}", response_model=Student)
+async def get_student_by_id(student_id: str, user_data: int= Depends(get_current_user)):
+    queryResult = db.child('users').child(user_data['uid']).child('students').child(student_id).get(user_data['idToken']).val()
+    if not queryResult : raise HTTPException(status_code=404, detail="Student not found") 
+    return queryResult
 
 # 3. Exercice (10min) PATCH Student (name)
-@router.patch('/{student_id}', status_code=204)
-async def modify_student_name(student_id:str, modifiedStudent: StudentNoID):
-    for student in students:
-        if student.id == student_id:
-            student.name=modifiedStudent.name
-            return
-    raise HTTPException(status_code= 404, detail="Student not found")
+#connecter la vraie DB (10 min)
+#add oauth (10min)
+@router.patch("/{student_id}", response_model=Student)
+async def student_update(student_id: str, student: StudentNoID, user_data: int= Depends(get_current_user)):
+    queryResult = db.child('users').child(user_data['uid']).child('students').child(student_id).get(user_data['idToken']).val()
+    if not queryResult : raise HTTPException(status_code=404, detail="Student not found") 
+    updatedStudent = Student(id=student_id, **student.model_dump())
+    return db.child('users').child(user_data['uid']).child('students').child(student_id).update(data=updatedStudent.model_dump(), token=user_data['idToken'])
 
 # 4. Exercice (10min) DELETE Student
-@router.delete('/{student_id}', status_code=204)
-async def delete_student(student_id:str):
-    for student in students:
-        if student.id == student_id:
-            students.remove(student)
-            return
-    raise HTTPException(status_code= 404, detail="Student not found")
+#connecter la vraie DB (10 min)
+#add oauth (10min)
+@router.delete("/{student_id}", status_code=202, response_model=str)
+async def student_delete(student_id: str, user_data: int= Depends(get_current_user)) :
+    queryResult = db.child('users').child(user_data['uid']).child('students').child(student_id).get(user_data['idToken']).val()
+    if not queryResult : 
+        raise HTTPException(status_code=404, detail="Student not found")
+    db.child('users').child(user_data['uid']).child('students').child(student_id).remove(token=user_data['idToken'])
+    return "Student deleted"
+
+
+#'Students' auront des 'Attendances' pour des 'Sessions'
+# utilisateurs, lien vers une ressource
+# API vendu à des centre de formations ... 'Center' -> Sessions + Students -> Attendences

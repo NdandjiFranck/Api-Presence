@@ -1,12 +1,14 @@
 # Import du framework
 from fastapi import FastAPI
 
+#Import des routeurs
+import routers.router_students
+import routers.router_auth
+
 # Documentation
 from Documentation.description import api_description
 from Documentation.tags import tags_metadata
 
-#Routers
-import Routers.router_students
 # Initialisation de l'API
 app = FastAPI(
     title="Attendance Tracker",
@@ -15,7 +17,8 @@ app = FastAPI(
 )
 
 # Router dédié aux Students
-app.include_router(Routers.router_students.router)
+app.include_router(routers.router_students.router)
+app.include_router(routers.router_auth.router)
 
 # Reste à faire 
 # X Sortir mon student's router dans un dossier "routers"
