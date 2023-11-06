@@ -1,13 +1,12 @@
 import firebase_admin
-from configs.firebase_config import firebaseConfig
+from firebase_admin import credentials
 import pyrebase
-
-if not firebase_admin._apps :
-    cred = firebase_admin.credentials.Certificate("configs/api-presence-firebase-adminsdk-4lxbg-89bb07eb0b.json")
+from configs.firebase_config import firebaseConfig
+ 
+if not firebase_admin._apps:
+    cred = credentials.Certificate("configs/firebasekey.json")
     firebase_admin.initialize_app(cred)
-
+ 
 firebase = pyrebase.initialize_app(firebaseConfig)
 db = firebase.database()
-
-#authentication
 authStudent = firebase.auth()

@@ -7,9 +7,3 @@ class Student(BaseModel):
 
 class StudentNoID(BaseModel):
     name: str
-
-class User(BaseModel):
-
-    email: str
-
-    password: str
