@@ -12,14 +12,14 @@ router= APIRouter(
 )
 
 players = [
-    Player(id="player1", name="Adama", club="Us Ivry", division= "N1"),
-    Player(id="player2", name="Adrien", club="Tremblay Hb", division= "D2"),
-    Player(id="player3", name="Akbar", club="Creteil", division= "N1")
+    Player(id="player1", name="franck", club="Us Ivry", division= "N1"),
+    Player(id="player2", name="kevin", club="Tremblay Hb", division= "D2"),
+    Player(id="player3", name="rick", club="Creteil", division= "N1")
 ]
 
 @router.get('', response_model=List[Player])
 async def get_player():
-    """List all the players from a  championship (context fonctionnel ou technique)"""
+    """List all the players from a  championship"""
     player_InDB =  db.child('player').get().val()
     #db.child("player").get().val()
     resultsarray= []
@@ -69,7 +69,7 @@ async def modify_player(player_id:str, modifiedPlayer: PlayerNoID, userData: int
     return after_update
 
 @router.delete('/{player_id}', status_code=204)
-async def delete_player(player_id:str):
+async def delete_player(player_id:str, userData: int = Depends(get_current_user)):
     onePlayer_InDB = db.child("player").child(player_id).get().val()
     if onePlayer_InDB is None:
         raise HTTPException(status_code= 404, detail="Player not found")
