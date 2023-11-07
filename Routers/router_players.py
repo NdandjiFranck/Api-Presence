@@ -19,7 +19,7 @@ players = [
 
 @router.get('', response_model=List[Player])
 async def get_player():
-    """List all the players from a championship (context fonctionnel ou technique)"""
+    """List all the players from a  championship (context fonctionnel ou technique)"""
     player_InDB =  db.child('player').get().val()
     #db.child("player").get().val()
     resultsarray= []
