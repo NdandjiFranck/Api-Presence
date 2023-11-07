@@ -6,8 +6,8 @@ from documentations.description import api_description
 from documentations.tags import tags_metadata
 
 #Routers
-import routers.router_students
-import routers.router_cours
+import routers.router_players
+import routers.router_teams
 import routers.router_auth
 # Initialisation de l'API
 app = FastAPI(
@@ -16,8 +16,8 @@ app = FastAPI(
     openapi_tags= tags_metadata
 )
 
-# Router dédié aux Students
-app.include_router(routers.router_students.router)
-app.include_router(routers.router_cours.router)
+# Router dédié aux players
+app.include_router(routers.router_players.router)
+app.include_router(routers.router_teams.router)
 app.include_router(routers.router_auth.router)
 

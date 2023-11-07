@@ -1,0 +1,52 @@
+from fastapi import APIRouter, HTTPException
+from typing import List
+import uuid
+from classes.schema import Team
+from database.firebase import db
+
+router = APIRouter(
+    prefix='/teams',
+    tags=["Teams"]
+)
+
+teams = [
+    Team(id="team1", name="Mathematics", club="Club A", date_heure="2023-10-17 09:00:00"),
+    Team(id="team2", name="History", club="Club B", date_heure="2023-10-18 14:00:00"),
+    Team(id="team3", name="Science", club="Club A", date_heure="2023-10-19 10:30:00")
+]
+
+@router.get('', response_model=List[Team])
+async def get_teams():
+    """List all the teams."""
+    return teams
+
+@router.get('/{team_id}', response_model=Team)
+async def get_team_by_id(team_id: str):
+    for team in teams:
+        if team.id == team_id:
+            return team
+    raise HTTPException(status_code=404, detail="Team not found")
+
+@router.post('', response_model=Team, status_code=201)
+async def add_new_team(new_team: Team):
+    new_team.id = str(uuid.uuid4())
+    teams.append(new_team)
+    return new_team
+
+@router.put('/{team_id}', response_model=Team)
+async def update_team(team_id: str, updated_team: Team):
+    for team in teams:
+        if team.id == team_id:
+            team.name = updated_team.name
+            team.club = updated_team.club
+            team.date_heure = updated_team.date_heure
+            return team
+    raise HTTPException(status_code=404, detail="Team not found")
+
+@router.delete('/{team_id}', response_model=Team)
+async def delete_team(team_id: str):
+    for team in teams:
+        if team.id == team_id:
+            teams.remove(team)
+            return team
+    raise HTTPException(status_code=404, detail="Team not found")

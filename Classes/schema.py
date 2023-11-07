@@ -1,23 +1,23 @@
 import datetime
 from pydantic import BaseModel
 
-class Student(BaseModel):
+class Player(BaseModel):
     id: str
     name: str
 
-class Course(BaseModel):
+class Team(BaseModel):
     id: str
     name: str
-    school:str
+    club:str
     date_heure:str
 
 class Attendance(BaseModel):
     id:str
-    student_id:str
-    course_id:str
+    player_id:str
+    team_id:str
     present: bool
 
-class StudentNoID(BaseModel):
+class PlayerNoID(BaseModel):
     name: str
 
 class User(BaseModel):

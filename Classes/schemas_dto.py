@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
 # Model Pydantic = Datatype
-class Student(BaseModel):
+class Player(BaseModel):
     id: str
     name: str
 
-class StudentNoID(BaseModel):
+class PlayerNoID(BaseModel):
     name: str

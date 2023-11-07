@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from classes.schema import User
 from firebase_admin import auth
-from database.firebase import authStudent
+from database.firebase import authPlayer
 
 router = APIRouter(
       tags=["auth"],
@@ -34,7 +34,7 @@ async def creat_an_account(user_body: User):
 async def creat_swagger_token(user_credentials:OAuth2PasswordRequestForm = Depends()):
     try:
         print(user_credentials)
-        user = authStudent.sign_in_with_email_and_password(email=user_credentials.username, password=user_credentials.password)
+        user = authPlayer.sign_in_with_email_and_password(email=user_credentials.username, password=user_credentials.password)
         token= user['idToken']
         print(token)
         return{
