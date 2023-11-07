@@ -4,14 +4,10 @@ from pydantic import BaseModel
 class Player(BaseModel):
     id: str
     name: str
+    club: str
+    division: str
 
-class Team(BaseModel):
-    id: str
-    name: str
-    club:str
-    date_heure:str
-
-class Attendance(BaseModel):
+class Affiliation(BaseModel):
     id:str
     player_id:str
     team_id:str
@@ -19,6 +15,8 @@ class Attendance(BaseModel):
 
 class PlayerNoID(BaseModel):
     name: str
+    club: str
+    division: str
 
 class User(BaseModel):
     email: str

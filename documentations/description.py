@@ -1,6 +1,9 @@
 api_description = """
-# Spécification
-"players" auront des "Attendances" pour des "Club"
 
-gg
+# Spécification
+
+
+"players" auront des "Affiliations" pour des "Club"
+
+
 """

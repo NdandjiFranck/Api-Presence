@@ -21,7 +21,7 @@ YOUR_DOMAIN = 'http://localhost'
 @router.post('/checkout')
 async def stripe_checkout():
     try:
-        checkout_session = stripe.checkout.Session.create(
+        checkout_player = stripe.checkout.Player.create(
             line_items=[
                 {
                     # PRICE ID du produit que vous vouler vendre
@@ -34,8 +34,8 @@ async def stripe_checkout():
             success_url=YOUR_DOMAIN + '/success.html',
             cancel_url=YOUR_DOMAIN + '/cancel.html',
         )
-        # return checkout_session
-        response = RedirectResponse(url=checkout_session['url'])
+        # return checkout_player
+        response = RedirectResponse(url=checkout_player['url'])
         return response
     except Exception as e:
         return str(e)
@@ -55,8 +55,8 @@ async def webhook_received(request:Request, stripe_signature: str = Header (None
         return  {"error":str(e)}
     
     event_type = event['type']
-    if event_type == 'checkout.session.completed':
-        print('checkout session completed')
+    if event_type == 'checkout.player.completed':
+        print('checkout player completed')
     elif event_type == 'invoice.paid':
         print('invoice paid')
         cust_email = event_data['object']['customer_email'] # email de notre customer
