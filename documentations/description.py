@@ -4,7 +4,7 @@ api_description = """
 
 Ceci est un projet en FastAPI pour une FEDERATION SPORTIVE
 
-"players" auront des "Affiliations" pour des "Club"
+Les Players pourront être affilier dans leur fédération
 
 
 """

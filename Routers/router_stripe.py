@@ -11,21 +11,20 @@ router = APIRouter(
     prefix='/stripe'
 )
 
-# Votre test secret API Key
-# stripe.api_key= 'sk_test_XXXXXXXXXXXXXXXX......XXXXXXx'
+# test secret API Key
 config = dotenv_values(".env")
-stripe.api_key=config['STRIPE_SK'] # votre API KEY
+stripe.api_key="sk_test_51O51suA2ErIH2Rm75Q6WpV8FUiEu1VLNB1LheD3I1GzBX3HsnjNWvmc9INVRY1HpuxiXHR365vQfZcaHHK23UdfV00SHdwNGCJ" # votre API KEY
 
 YOUR_DOMAIN = 'http://localhost'
 
-@router.post('/checkout')
+@router.get('/checkout')
 async def stripe_checkout():
     try:
-        checkout_player = stripe.checkout.Player.create(
+        checkout_session = stripe.checkout.Session.create(
             line_items=[
                 {
                     # PRICE ID du produit que vous vouler vendre
-                    'price':'price_1O51yBBGU0W0UyieW8G3csY0',
+                    'price':'price_1O520VA2ErIH2Rm77GcLsvMU',
                     'quantity' : 1,
                 },
             ],
@@ -35,14 +34,14 @@ async def stripe_checkout():
             cancel_url=YOUR_DOMAIN + '/cancel.html',
         )
         # return checkout_player
-        response = RedirectResponse(url=checkout_player['url'])
+        response = RedirectResponse(url=checkout_session['url'])
         return response
     except Exception as e:
         return str(e)
     
 @router.post('/webhook')
 async def webhook_received(request:Request, stripe_signature: str = Header (None)):
-    webhook_secret = "whsec_29e694bca2360cc2a935318ce8b2d14e248bb55ece38d63c990398cde05282f6"
+    webhook_secret = "whsec_3b46cf4ac3822c33b47d0b4e5d1cf91b1083347f20c93b4870121cc64e8ba7da"
     data = await request.body()
     try:
         event = stripe.Webhook.construct_event(
@@ -71,18 +70,3 @@ async def webhook_received(request:Request, stripe_signature: str = Header (None
         print(f'unhandled event: {event_type}')
 
     return {"status": "success"}
-
-@router.get('/usage')
-async def stripe_usage(userData: int = Depends(get_current_user)):
-    fireBase_user = auth.get_user(userData['uid']) # Identifiant firebase correspondant (uid)
-    stripe_data= db.child("users").child(fireBase_user.uid).child("stripe").get().val()
-    cust_id =stripe_data['cust_id']
-    return stripe.Invoice.upcoming(customer=cust_id)
-
-def increment_stripe(userId:str):
-    fireBase_user = auth.get_user(userId) # Identifiant firebase correspondant (uid)
-    stripe_data= db.child("users").child(fireBase_user.uid).child("stripe").get().val()
-    print(stripe_data.values())
-    item_id =stripe_data['item_id']
-    stripe.SubscriptionItem.create_usage_record(item_id, quantity=1)
-    return

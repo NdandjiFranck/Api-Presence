@@ -7,6 +7,7 @@ from documentations.tags import tags_metadata
 
 #Routers
 import routers.router_players
+import routers.router_stripe
 #import routers.router_teams
 import routers.router_auth
 # Initialisation de l'API
@@ -18,6 +19,6 @@ app = FastAPI(
 
 # Router dédié aux players
 app.include_router(routers.router_players.router)
-#app.include_router(routers.router_teams.router)
+app.include_router(routers.router_stripe.router)
 app.include_router(routers.router_auth.router)
 
