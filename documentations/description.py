@@ -1,6 +1,6 @@
 api_description = """
 
-# Spécification
+# Objectifs
 
 Ceci est un projet en FastAPI pour une FEDERATION SPORTIVE
 
