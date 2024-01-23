@@ -1,4 +1,4 @@
-import pytest
+import pytest 
 from fastapi.testclient import TestClient
 from main import app
 from firebase_admin import auth
@@ -30,7 +30,7 @@ def test_create_account_success(cleanup):
 # Exemple de test avec nettoyage
 def test_create_account_conflict(cleanup):
     # Effectuez vos actions de test ici
-    response = client.post("/auth/signup", json={"email": "adama@example.com", "password": "testpassword"})
+    response = client.post("/auth/signup", json={"email": "tchtenga23@gmail.com", "password": "123456"})
     assert response.status_code == 409  # Conflict
     # Le nettoyage se fera automatiquement à la fin du test grâce au décorateur @pytest.fixture
 
@@ -53,11 +53,5 @@ def test_login_user_not_exists():
     # Assurez-vous que le message d'erreur est conforme à vos attentes
     assert "Invalid Credentials" in response.json()["detail"]
 
-@pytest.fixture
-def auth_token():
-    # Effectuer le test de connexion avec les informations de l'utilisateur créé
-    response_login = client.post("/auth/login", data={"username": "counttest@gmail.com", "counttest": "testpassword"})
-    assert response_login.status_code == 200
-    assert "access_token" in response_login.json()
-    return response_login.json()["access_token"]
+
 
