@@ -7,51 +7,71 @@ client = TestClient(app)
 
 @pytest.fixture
 def cleanup(request):
-    # Nettoyer la base de données une fois les tests terminés
+    # La fonction remove_test_users est définie à l'intérieur de cleanup et sera utilisée comme finalizer.
     def remove_test_users():
+        # Récupère la liste de tous les utilisateurs dans le système d'authentification.
         users = auth.list_users().iterate_all()
+        
+        # Parcours tous les utilisateurs.
         for user in users:
-            # Ajoutez votre logique de filtrage pour identifier les utilisateurs de test
+            # Vérifie si l'adresse e-mail de l'utilisateur commence par "test_".
             if user.email.startswith("test_"):
+                # Supprime l'utilisateur du système d'authentification.
                 auth.delete_user(user.uid)
-    
-    # Ajouter la fonction de nettoyage pour qu'elle soit appelée à la fin des tests
+
+    # Ajoute la fonction remove_test_users comme finalizer pour être exécutée à la fin des tests.
     request.addfinalizer(remove_test_users)
 
-# Exemple de test avec nettoyage
+# test avec nettoyage
 def test_create_account_success(cleanup):
-    # Effectuez vos actions de test ici
-    response = client.post("/auth/signup", json={"email": "test_adama@example.com", "password": "testpassword"})
-    assert response.status_code == 201
-    assert "message" in response.json()
-    assert "id" in response.json()["message"]
-    # Le nettoyage se fera automatiquement à la fin du test grâce au décorateur @pytest.fixture
+    # Appelle l'API pour créer un nouveau compte utilisateur avec une adresse e-mail et un mot de passe spécifiés.
+    response = client.post("/auth/signup", json={"email": "test_franck@example.com", "password": "testpassword"})
 
-# Exemple de test avec nettoyage
+    # Vérifie que la réponse de l'API a un code de statut HTTP 201 (Créé avec succès).
+    assert response.status_code == 201
+
+    # Vérifie que la réponse JSON de l'API contient la clé "message".
+    assert "message" in response.json()
+
+    # Vérifie que la réponse JSON de l'API contient la clé "id" dans le champ "message".
+    assert "id" in response.json()["message"]
+
+
 def test_create_account_conflict(cleanup):
-    # Effectuez vos actions de test ici
+    # Appelle l'API pour tenter de créer un nouveau compte utilisateur avec une adresse e-mail déjà existante.
     response = client.post("/auth/signup", json={"email": "tchtenga23@gmail.com", "password": "123456"})
-    assert response.status_code == 409  # Conflict
-    # Le nettoyage se fera automatiquement à la fin du test grâce au décorateur @pytest.fixture
+
+    # Vérifie que la réponse de l'API a un code de statut HTTP 409 (Conflit) indiquant que la ressource existe déjà.
+    assert response.status_code == 409
+
 
 def test_login(cleanup):
-    # Créer un utilisateur pour le test de connexion
+    # Crée un nouveau compte utilisateur en appelant l'API d'inscription.
     response_create = client.post("/auth/signup", json={"email": "test_test@example.com", "password": "testpassword"})
+    
+    # Vérifie que la création du compte a réussi avec un code de statut HTTP 201 (Créé).
     assert response_create.status_code == 201
-
-    # Effectuer le test de connexion avec les informations de l'utilisateur créé
+    
+    # Tente de se connecter en appelant l'API de connexion avec les informations du nouveau compte.
     response_login = client.post("/auth/login", data={"username": "test_test@example.com", "password": "testpassword"})
+    
+    # Vérifie que la connexion a réussi avec un code de statut HTTP 200 (OK).
     assert response_login.status_code == 200
+    
+    # Vérifie que la réponse de l'API contient un jeton d'accès ("access_token").
     assert "access_token" in response_login.json()
 
-def test_login_user_not_exists():
-    # Effectuez vos actions de test ici en utilisant un utilisateur qui n'existe pas
-    response = client.post("/auth/login", data={"username": "utilisateur_inconnu@example.com", "password": "mot_de_passe_incorrect"})
 
-    # Assurez-vous que le code d'état est 401 (Non autorisé)
+def test_login_user_not_exists():
+    # Tente de se connecter en appelant l'API de connexion avec des informations d'identification incorrectes.
+    response = client.post("/auth/login", data={"username": "utilisateur_inconnu@example.com", "password": "mot_de_passe_incorrect"})
+    
+    # Vérifie que la tentative de connexion échoue avec un code de statut HTTP 401 (Non autorisé).
     assert response.status_code == 401
-    # Assurez-vous que le message d'erreur est conforme à vos attentes
+    
+    # Vérifie que le détail de la réponse indique "Invalid Credentials" (Informations d'identification non valides).
     assert "Invalid Credentials" in response.json()["detail"]
+
 
 
 
