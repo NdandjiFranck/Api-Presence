@@ -87,5 +87,3 @@ async def delete_player(player_id:str, userData: int = Depends(get_current_user)
         raise HTTPException(status_code= 404, detail="Player not found")
     after_delete= db.child("player").child(player_id).remove()
     return None
-
-

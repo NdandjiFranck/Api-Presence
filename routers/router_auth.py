@@ -54,4 +54,5 @@ def get_current_user(provided_token: str=Depends(oauth2_scheme)):
 
 @router.get('/me')
 def secure_endpoint(userData: int= Depends(get_current_user)):
+
     return
